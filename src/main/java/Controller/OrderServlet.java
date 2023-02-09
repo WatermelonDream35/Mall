@@ -51,11 +51,6 @@ public class OrderServlet extends BaseServlet {
         float totalPrice = Float.parseFloat(_totalPrice);
         int userId = Integer.parseInt(_userId);
 
-        if (userId == -1) {
-            resp.getWriter().write("error");
-            return;
-        }
-
         Order order = orderService.createOrder(goods, totalPrice, userId);
 
         //2. 转为JSON

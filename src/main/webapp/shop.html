@@ -18,7 +18,7 @@
                         设置<i class="el-icon-arrow-down el-icon--right"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item v-if="isUser" @click.native="pwdDialogVisible = true">修改密码
+                        <el-dropdown-item v-if="isUser && !isVisitor" @click.native="pwdDialogVisible = true">修改密码
                         </el-dropdown-item>
 
                         <el-dialog title="修改密码"
@@ -228,6 +228,12 @@
                                 <el-table-column
                                         label="单价"
                                         prop="price"
+                                        sortable>
+                                </el-table-column>
+
+                                <el-table-column
+                                        label="销量"
+                                        prop="salesNumber"
                                         sortable>
                                 </el-table-column>
 
@@ -489,7 +495,7 @@
                     </el-tab-pane>
 
                     <!--订单管理-->
-                    <el-tab-pane label="订单管理" name="forth">
+                    <el-tab-pane label="订单管理" name="forth" v-if="!isVisitor">
                         <!--商品表格-->
                         <el-table
                                 :data="ordersData"
@@ -636,7 +642,6 @@
         mounted() {
             this.role();
             this.showTableData();
-            this.showOrdersData();
         },
 
         data() {
@@ -693,6 +698,7 @@
                 username: "管理员",
                 // 部件显示情况
                 isUser: false,
+                isVisitor: false,
 
                 // 修改密码
                 pwdDialogVisible: false,
@@ -871,13 +877,16 @@
         methods: {
             //处理页头点击
             handleClick(tab) {
-                if ('third' === tab.name) {
+                if ('third' === tab.name) { //销售报表
                     this.getChartsData();
                     this.chartLoading = true;
                     setTimeout(() => {
                         this.drawLine();
                         this.chartLoading = false;
                     }, 1000);
+                }
+                if ('forth' === tab.name) { //订单管理
+                    this.showOrdersData();
                 }
             },
 
@@ -897,13 +906,25 @@
             //判断是用户还是管理员
             async role() {
                 this.userId = this.getQueryVariable('userId');
-                if (this.userId !== null) {
+                console.log(this.userId)
+                //游客
+                if (this.userId === null) {
                     this.isUser = true;
+                    this.isVisitor = true;
+                    this.username = "游客";
+                    return;
+                }
+
+                if (this.userId !== -1) {
+                    this.isUser = true;
+                    this.isVisitor = false;
                     await this.getUsername(this.userId).then(res => {
                         this.username = res;
                     })
                 } else {
                     this.isUser = false;
+                    this.isVisitor = false;
+                    this.username = "管理员";
                 }
 
             },
@@ -960,7 +981,7 @@
                 this.$refs[formName].validate((valid) => {
                     if (formName === "pwdForm") {
                         if (valid) {
-                            this.UpdatePwd();
+                            this.updatePwd();
                         } else {
                             this.$message.error('请正确输入密码！');
                             return false;
@@ -978,7 +999,7 @@
             },
 
             //修改密码，调用接口更改
-            UpdatePwd() {
+            updatePwd() {
                 // 发送ajax请求，请求数据
                 axios({
                     method: "get",
@@ -1232,7 +1253,7 @@
             // 添加操作
             handleAdd(i) {
                 // 判断库存是否为0
-                if (this.tableData[i].stockNumber <= 0) {
+                if (this.tableData[i].stockNumber - this.tableData[i].buyNumber <= 0) {
                     this.$message.error('此商品缺货中，暂时无法购买');
                     return;
                 }
@@ -1278,7 +1299,17 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.inputDialogFormVisible = true;
+                    // 游客
+                    if (this.isVisitor) {
+                        this.$message.error('请先登录！');
+
+                        setTimeout(() => {
+                            //跳转页面
+                            window.location.href = 'http://localhost:8080/Mall/login.html'
+                        }, 1000);
+                    } else {
+                        this.inputDialogFormVisible = true;
+                    }
 
                 }).catch(() => {
                     //用户点击取消按钮
@@ -1304,44 +1335,36 @@
                     url: "http://localhost:8080/Mall/order/createOrder?totalPrice=" + this.sum + "&userId=" + this.userId,
                     data: this.$refs.multipleTable.selection // 购物车中选中商品
                 }).then((resp) => {
-                    if (resp.data !== "error") {
-                        this.inputDialogFormVisible = false;
-                        // 重新查询数据
-                        this.showTableData();
-                        this.showOrdersData();
+                    this.inputDialogFormVisible = false;
+                    // 重新查询数据
+                    this.showTableData();
+                    this.showOrdersData();
 
-                        // 删除购物车中已购买的商品
-                        this.$refs.multipleTable.selection.forEach((val, index) => {
-                            //遍历源数据
-                            this.addedGoods.forEach((v, i) => {
-                                //如果选中数据和源数据相等，删除对应的源数据
-                                if (val === v) {
-                                    this.handleDelete(i)
-                                }
-                            })
+                    // 删除购物车中已购买的商品
+                    this.$refs.multipleTable.selection.forEach((val, index) => {
+                        //遍历源数据
+                        this.addedGoods.forEach((v, i) => {
+                            //如果选中数据和源数据相等，删除对应的源数据
+                            if (val === v) {
+                                this.handleDelete(i)
+                            }
                         })
+                    })
 
-                        // 弹出订单信息
-                        let orderString = '<pre><strong>订单号：\t' + resp.data['orderId'] + '<br/>' +
-                            '用户名：\t' + this.username + '<br/>' +
-                            '总价：\t\t￥' + resp.data['totalPrice'] + '<br/>' +
-                            '购买时间：\t' + resp.data['time'] + '<br/>' +
-                            '当前状态：\t' + '未发货' + '<br/></strong></pre>';
+                    // 弹出订单信息
+                    let orderString = '<pre><strong>订单号：\t' + resp.data['orderId'] + '<br/>' +
+                        '用户名：\t' + this.username + '<br/>' +
+                        '总价：\t\t￥' + resp.data['totalPrice'] + '<br/>' +
+                        '购买时间：\t' + resp.data['time'] + '<br/>' +
+                        '当前状态：\t' + '未发货' + '<br/></strong></pre>';
 
-                        this.$notify({
-                            title: '购买成功',
-                            message: orderString,
-                            type: 'success',
-                            dangerouslyUseHTMLString: true,
-                        });
-                    } else {
-                        this.$message.error('请先登录！');
+                    this.$notify({
+                        title: '购买成功',
+                        message: orderString,
+                        type: 'success',
+                        dangerouslyUseHTMLString: true,
+                    });
 
-                        setTimeout(() => {
-                            //跳转页面
-                            window.location.href = 'http://localhost:8080/Mall/login.html'
-                        }, 1000);
-                    }
                 })
 
             },
