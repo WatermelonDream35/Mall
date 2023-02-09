@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DAO.GoodsDao">
+
+    <resultMap id="goodsResultMap" type="goods">
+        <result property="goodsName" column="goods_name"/>
+        <result property="stockNumber" column="stock_number"/>
+        <result property="buyNumber" column="buy_number"/>
+        <result property="salesNumber" column="sales_number"/>
+    </resultMap>
+
+
+    <select id="selectByPageAndCondition" resultMap="goodsResultMap">
+        select *
+        from tb_goods
+        <where>
+            <if test="goods.goodsName != null and goods.goodsName != '' ">
+                and goods_name like #{goods.goodsName}
+            </if>
+
+            <if test="goods.type != null and goods.type != '' ">
+                and type like #{goods.type}
+            </if>
+
+            <if test="goods.description != null and goods.description != ''">
+                and description like #{goods.description}
+            </if>
+
+        </where>
+
+        limit #{begin} , #{size}
+
+    </select>
+
+    <select id="selectTotalCountByCondition" resultType="java.lang.Integer">
+
+        select count(*)
+        from tb_goods
+        <where>
+            <if test="goodsName != null and goodsName != '' ">
+                and goods_name like #{goodsName}
+            </if>
+
+            <if test="type != null and type != '' ">
+                and type like #{type}
+            </if>
+
+            <if test="description != null and description != ''">
+                and description like #{description}
+            </if>
+
+        </where>
+
+    </select>
+
+    <delete id="deleteByIds">
+        delete from tb_goods where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+
+
+    </delete>
+
+</mapper>

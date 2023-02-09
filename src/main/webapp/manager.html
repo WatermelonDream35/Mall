@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>后台入口</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            background: rgb(135, 206, 235);
+        }
+
+        #app {
+            font-family: "Avenir", Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            color: #2c3e50;
+        }
+
+        #manager {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -200px;
+            margin-left: -250px;
+            width: 500px;
+            height: 300px;
+            background: #fff;
+            border-radius: 10%;
+            box-shadow: 8px 10px 10px rgb(177, 223, 242);
+        }
+
+        .title {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .pos {
+            width: 450px;
+            height: 350px;
+            position: absolute;
+            top: 25px;
+            left: 25px;
+        }
+
+        .btn {
+            width: 70%;
+            padding: 20px;
+        }
+
+        .bottom {
+            margin-left: 270px;
+        }
+    </style>
+</head>
+
+<body>
+<div id="app">
+    <div id="manager">
+        <div class="pos">
+
+            <h1 class="title">后台入口</h1>
+            <el-form
+                    :model="ruleForm"
+                    status-icon
+                    :rules="rules"
+                    ref="ruleForm"
+                    label-width="100px"
+                    class="demo-ruleForm"
+            >
+
+
+                <el-form-item label="密 码：" prop="password">
+                    <el-input
+                            prefix-icon="el-icon-lock"
+                            style="width: 250px"
+                            show-password
+                            type="password"
+                            v-model="password"
+                            autocomplete="off"
+                    ></el-input>
+                </el-form-item>
+
+
+                <el-form-item>
+                    <el-button type="primary" @click="submitForm('ruleForm')" class="btn">登录</el-button>
+                </el-form-item>
+
+                <el-link href="login.html" type="danger" icon="el-icon-back" class="bottom">返回登录</el-link>
+
+            </el-form>
+        </div>
+    </div>
+</div>
+
+
+<script src="js/vue.js"></script>
+<script src="element-ui/lib/index.js"></script>
+<link rel="stylesheet" href="element-ui/lib/theme-chalk/index.css">
+
+<script src="js/axios-0.18.0.js"></script>
+
+<script>
+    new Vue({
+        el: "#app",
+
+        data() {
+            return {
+                password: ""
+            };
+        },
+        methods: {
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.loading = true;
+                        setTimeout(() => {
+                            this.loading = false;
+                        }, 2000);
+                    } else {
+                        console.log("error submit!!");
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            },
+        },
+
+    })
+</script>
+</body>
+
+</html>
