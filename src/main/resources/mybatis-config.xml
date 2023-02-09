@@ -13,7 +13,7 @@
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
                 <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://8.130.50.40/Mall?useSSL=false"/>
+                <property name="url" value="jdbc:mysql://8.130.50.40:3306/mall?useSSL=false"/>
                 <property name="username" value="root"/>
                 <property name="password" value="yzh572550059"/>
             </dataSource>

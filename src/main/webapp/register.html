@@ -175,10 +175,10 @@
             register() {
                 axios({
                     method: "post",
-                    url: "http://localhost:8080/Mall/user/register",
+                    url: "http://8.130.50.40:8080/Mall/user/register",
                     data: this.ruleForm
                 }).then(resp => {
-                    if (resp.data == "success") {
+                    if (resp.data === "success") {
                         // 注册成功
                         // 弹出消息提示
                         this.$message({
@@ -188,7 +188,7 @@
 
                         setTimeout(() => {
                             //跳转页面
-                            window.location.href = 'http://localhost:8080/Mall/login.html'
+                            window.location.href = 'http://8.130.50.40:8080/Mall/login.html'
                         }, 1000);
                     } else {
                         // 注册失败
