@@ -261,7 +261,7 @@
                                                    icon="el-icon-edit"
                                                    v-if="!isUser"
                                                    @click="updateDialogVisible = true;
-                                                   setCurrentGoods(scope.row.id)">修改
+                                                   getCurrentGoods(scope.row.id)">修改
                                         </el-button>
 
                                         <!--添加数据对话框表单-->
@@ -625,20 +625,21 @@
     }
 
     /*弹框居中*/
-    .el-dialog{
+    .el-dialog {
         display: flex;
         flex-direction: column;
-        margin:0 !important;
-        position:absolute;
-        top:50%;
-        left:50%;
-        transform:translate(-50%,-50%);
+        margin: 0 !important;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         /*height:600px;*/
-        max-height:calc(100% - 30px);
-        max-width:calc(100% - 30px);
+        max-height: calc(100% - 30px);
+        max-width: calc(100% - 30px);
     }
-    .el-dialog .el-dialog__body{
-        flex:1;
+
+    .el-dialog .el-dialog__body {
+        flex: 1;
         overflow: auto;
     }
 
@@ -807,7 +808,7 @@
 
                 tableData: [{
                     id: "1",
-                    goodsName: "好滋好味鸡蛋仔",
+                    goodsName: "鸡蛋仔",
                     img: "https://cp1.douguo.com/upload/caiku/0/9/6/yuan_0982360ec9f7f3a7f720c04ced479536.jpg",
                     price: "10",
                     stockNumber: "10",
@@ -817,7 +818,7 @@
                     description: "荷兰优质淡奶，奶香浓而不腻",
                 }, {
                     id: "2",
-                    goodsName: "好滋好味鸡蛋仔",
+                    goodsName: "鸡蛋仔",
                     img: "https://cp1.douguo.com/upload/caiku/0/9/6/yuan_0982360ec9f7f3a7f720c04ced479536.jpg",
                     price: "10",
                     stockNumber: "10",
@@ -827,7 +828,7 @@
                     description: "荷兰优质淡奶，奶香浓而不腻",
                 }, {
                     id: "3",
-                    goodsName: "好滋好味鸡蛋仔",
+                    goodsName: "鸡蛋仔",
                     img: "https://cp1.douguo.com/upload/caiku/0/9/6/yuan_0982360ec9f7f3a7f720c04ced479536.jpg",
                     price: "10",
                     stockNumber: "10",
@@ -837,7 +838,7 @@
                     description: "荷兰优质淡奶，奶香浓而不腻",
                 }, {
                     id: "4",
-                    goodsName: "好滋好味鸡蛋仔",
+                    goodsName: "鸡蛋仔",
                     img: "https://cp1.douguo.com/upload/caiku/0/9/6/yuan_0982360ec9f7f3a7f720c04ced479536.jpg",
                     price: "10",
                     stockNumber: "10",
@@ -925,7 +926,7 @@
                 return null;
             },
 
-            //判断是用户还是管理员
+            //判断是用户、管理员还是游客
             async role() {
                 this.userId = this.getQueryVariable('userId');
                 //console.log(this.userId)
@@ -1022,7 +1023,7 @@
 
             //修改密码，调用接口更改
             updatePwd() {
-                // 发送ajax请求，请求数据
+                // 发送ajax请求，修改数据
                 axios({
                     method: "get",
                     url: "http://8.130.50.40:8080/Mall/user/updatePwd?id=" + this.userId + "&password=" + this.pwdForm.newPassword,
@@ -1044,7 +1045,8 @@
                 // 发送ajax请求，请求数据
                 axios({
                     method: "post",
-                    url: "http://8.130.50.40:8080/Mall/goods/selectByPageAndCondition?currentPage=" + this.currentPage + "&pageSize=" + this.pageSize,
+                    url: "http://8.130.50.40:8080/Mall/goods/selectByPageAndCondition?currentPage=" +
+                        this.currentPage + "&pageSize=" + this.pageSize,
                     data: this.queryCondition
                 }).then(resp => {
                     //设置表格数据
@@ -1065,8 +1067,8 @@
                 })
             },
 
-            // 设置当前选中的商品信息
-            setCurrentGoods(id) {
+            // 获取当前选中的商品信息
+            getCurrentGoods(id) {
                 this.tableData.forEach(item => {
                     if (item.id === id) {
                         // 对引用数据类型进行克隆传值（即转为JSON格式），防止直接复制传址造成的原数据同步修改
@@ -1126,7 +1128,7 @@
                     } else {
                         this.$message.error('没有符合条件的商品');
                     }
-                }, 100);
+                }, 200);
 
 
             },
@@ -1156,7 +1158,7 @@
 
             //修改商品
             updateGoods() {
-                // 发送ajax请求，添加数据
+                // 发送ajax请求，修改数据
                 axios({
                     method: "post",
                     url: "http://8.130.50.40:8080/Mall/goods/update",
@@ -1185,7 +1187,7 @@
                     type: 'warning'
                 }).then(() => {
                     //用户点击确认按钮
-                    // 发送ajax请求，添加数据
+                    // 发送ajax请求，删除数据
                     axios({
                         method: "get",
                         url: "http://8.130.50.40:8080/Mall/goods/delete?id=" + id,
@@ -1354,7 +1356,8 @@
                 // 发送ajax请求，添加数据
                 axios({
                     method: "post",
-                    url: "http://8.130.50.40:8080/Mall/order/createOrder?totalPrice=" + this.sum + "&userId=" + this.userId,
+                    url: "http://8.130.50.40:8080/Mall/order/createOrder?totalPrice=" +
+                        this.sum + "&userId=" + this.userId,
                     data: this.$refs.multipleTable.selection // 购物车中选中商品
                 }).then((resp) => {
                     this.inputDialogFormVisible = false;
@@ -1460,7 +1463,7 @@
                     type: 'warning'
                 }).then(() => {
                     //用户点击确认按钮
-                    // 发送ajax请求，添加数据
+                    // 发送ajax请求，修改数据
 
                     order['status'] = '0';
                     axios({
@@ -1494,7 +1497,7 @@
                     type: 'warning'
                 }).then(() => {
                     //用户点击确认按钮
-                    // 发送ajax请求，添加数据
+                    // 发送ajax请求，修改数据
 
                     order['status'] = '1';
                     axios({
@@ -1609,6 +1612,7 @@
                 });
             },
 
+            //图表绘制
             drawLine() {
                 this.orderChart = this.$echarts.init(document.getElementById('orderChart'))
                 this.salesChart = this.$echarts.init(document.getElementById('salesChart'))
