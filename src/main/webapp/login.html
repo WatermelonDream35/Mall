@@ -166,8 +166,8 @@
                     data: this.ruleForm
                 }).then(resp => {
                     ///无响应
-                    if (resp.data === null) {
-                        this.$message.error('页面出错，请刷新页面后重新登陆！');
+                    if (resp.data === null || resp.data === '') {
+                        this.$message.error('服务器无响应，请刷新页面后重新登陆！');
                         return false;
                     } else {
                         if (resp.data !== "error") {

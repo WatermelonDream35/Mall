@@ -931,7 +931,7 @@
                 this.userId = this.getQueryVariable('userId');
                 //console.log(this.userId)
                 //游客
-                if (this.userId === null) {
+                if (this.userId === null || this.userId === '') {
                     this.isUser = true;
                     this.isVisitor = true;
                     this.username = "游客";

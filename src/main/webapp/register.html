@@ -59,7 +59,7 @@
 
 <body>
 <div id="app">
-    <div id="register" >
+    <div id="register">
         <div class="pos">
 
             <h1 class="title">用户注册</h1>
@@ -178,22 +178,28 @@
                     url: "http://8.130.50.40:8080/Mall/user/register",
                     data: this.ruleForm
                 }).then(resp => {
-                    if (resp.data === "success") {
-                        // 注册成功
-                        // 弹出消息提示
-                        this.$message({
-                            message: '注册成功，即将跳转到登录界面',
-                            type: 'success'
-                        });
-
-                        setTimeout(() => {
-                            //跳转页面
-                            window.location.href = 'http://8.130.50.40:8080/Mall/login.html'
-                        }, 1000);
+                    ///无响应
+                    if (resp.data === null || resp.data === '') {
+                        this.$message.error('服务器无响应，请刷新页面后重新注册！');
+                        return false;
                     } else {
-                        // 注册失败
-                        // 弹出消息提示
-                        this.$message.error('该用户已存在！');
+                        if (resp.data === "success") {
+                            // 注册成功
+                            // 弹出消息提示
+                            this.$message({
+                                message: '注册成功，即将跳转到登录界面',
+                                type: 'success'
+                            });
+
+                            setTimeout(() => {
+                                //跳转页面
+                                window.location.href = 'http://8.130.50.40:8080/Mall/login.html'
+                            }, 1000);
+                        } else {
+                            // 注册失败
+                            // 弹出消息提示
+                            this.$message.error('该用户已存在！');
+                        }
                     }
                 })
             },
